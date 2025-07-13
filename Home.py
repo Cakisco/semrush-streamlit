@@ -37,7 +37,7 @@ class mrr:
             self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='mrr_country')
             self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='mrr_product')
     def plot_mrr(self):
-        chart = alt.Chart(self.data).mark_area(point=True).encode(
+        chart = alt.Chart(self.data).mark_area(point=alt.OverlayMarkDef(filled=True, fill='#421983', stroke='#421983'), color='#421983').encode(
             x=alt.X('yearmonth(metric_month):T', title=''),
             y=alt.Y('sum(mrr):Q', title='Monthly recurring revenue'),
             tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('sum(mrr):Q',title='MRR',format='.1f')]
@@ -47,7 +47,7 @@ class mrr:
             st.markdown('') #Spacer
             st.altair_chart(chart, use_container_width=True)
     def plot_customers(self):
-        chart = alt.Chart(self.data).mark_area(point=True).encode(
+        chart = alt.Chart(self.data).mark_area(point=alt.OverlayMarkDef(filled=True, fill='#421983', stroke='#421983'), color='#421983').encode(
             x=alt.X('yearmonth(metric_month):T', title=''),
             y=alt.Y('sum(active_subscribers):Q', title='Monthly subscribers'),
             tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('sum(active_subscribers):Q',title='MRR',format='.0f')]
@@ -80,7 +80,7 @@ class churn:
             metric='volume_churn:Q'
         else:
             metric='value_churn:Q'
-        chart = alt.Chart(self.data_chart).mark_line(point=True).encode(
+        chart = alt.Chart(self.data_chart).mark_line(point=alt.OverlayMarkDef(filled=True, fill='#421983', stroke='#421983'), color='#421983').encode(
             x=alt.X('yearmonth(churn_month):T', title=''),
             y=alt.Y(metric, title='Churn rate', axis=alt.Axis(format='.0%')),
             tooltip = [alt.Tooltip('yearmonth(churn_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip(metric,title='Churn rate',format='.1%')]
