@@ -66,6 +66,7 @@ class churn:
         with st.container(border=True):
             self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='churn_country')
             self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='churn_product')
+            self.churn_volume = st.toggle(label='See volume churn rate', help='Toggle this option to visualise volume churn rate instead of value churn rate')
     def transform_data(self):
         data_churn = self.data.groupby(['churn_month'])[['starting_revenue','starting_customers','retained_revenue','retained_customers']].sum().reset_index()
         data_churn['value_retention']=data_churn['retained_revenue']/data_churn['starting_revenue']
@@ -75,10 +76,14 @@ class churn:
         data_churn['churn_month']=pd.to_datetime(data_churn['churn_month'])
         self.data_chart = data_churn
     def plot_churn(self):
+        if self.churn_volume:
+            metric='volume_churn:Q'
+        else:
+            metric='value_churn:Q'
         chart = alt.Chart(self.data_chart).mark_line(point=True).encode(
             x=alt.X('yearmonth(churn_month):T', title=''),
-            y=alt.Y('value_churn:Q', title='Churn rate', axis=alt.Axis(format='.0%')),
-            tooltip = [alt.Tooltip('yearmonth(churn_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('value_churn:Q',title='Churn rate',format='.1%')]
+            y=alt.Y(metric, title='Churn rate', axis=alt.Axis(format='.0%')),
+            tooltip = [alt.Tooltip('yearmonth(churn_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip(metric,title='Churn rate',format='.1%')]
         )
         with st.container():
             st.markdown('### Churn rate')
@@ -138,7 +143,6 @@ with st.container():
     churn_object.filter_data()
     churn_object.transform_data()
     churn_object.plot_churn()
-    st.dataframe(churn_object.data)
     st.divider()
 
 #Part 4: Customer Acquisition
