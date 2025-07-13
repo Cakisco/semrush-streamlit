@@ -13,23 +13,46 @@ The business performance for the subscription service analysed is evaluated acro
 - **Subscription products**: The relative popularity and performance of the three subscription tiers.                                            
                 """)
 
+def filter_data_categories(dataset, description, column, key):
+    """A util function to apply a multiselect filter to narrow down a pandas dataset based on a categorical column"""
+    options = dataset[column].unique()
+    choices = st.multiselect(label=description, options=options, key=key)
+    if len(choices)>0:
+        dataset = dataset[dataset[column].isin(choices)]
+    return dataset
+
+
 class mrr:
     def __init__(self, data_path):
         self.data_path = data_path
     def fetch_data(self):
         self.data = pd.read_csv(self.data_path)
+    def filter_data(self):
+        with st.container(border=True):
+            self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='mrr_country')
+            self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='mrr_product')
 
 class churn:
     def __init__(self, data_path):
         self.data_path = data_path
     def fetch_data(self):
         self.data = pd.read_csv(self.data_path)
+    def filter_data(self):
+        with st.container(border=True):
+            self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='churn_country')
+            self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='churn_product')
+
 
 class acquisition:
     def __init__(self, data_path):
         self.data_path = data_path
     def fetch_data(self):
         self.data = pd.read_csv(self.data_path)
+    def filter_data(self):
+        with st.container(border=True):
+            self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='acq_country')
+            self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='acq_product')
+
 
 class products:
     def __init__(self, data_path_subs, data_path_updown):
@@ -38,6 +61,13 @@ class products:
     def fetch_data(self):
         self.data_subs = pd.read_csv(self.data_path_subs)
         self.data_updown = pd.read_csv(self.data_path_updown)
+    def filter_data(self):
+        with st.container(border=True):
+            options = self.data_subs['billingCountry'].unique()
+            choices = st.multiselect(label="Filter data by market", options=options, key='products_country')
+            if len(choices)>0:
+                self.data_subs = self.data_subs[self.data_subs['billingCountry'].isin(choices)]
+                self.data_updown = self.data_updown[self.data_updown['billingCountry'].isin(choices)]
 
 st.title("Analytics Engineer Test Task")
 #Part 1: Project overview
@@ -52,6 +82,7 @@ st.markdown('## Recurring Revenue')
 with st.container():
     mrr_object = mrr(data_path = './data/mrr.csv')
     mrr_object.fetch_data()
+    mrr_object.filter_data()
     st.dataframe(mrr_object.data)
     st.divider()
 
@@ -60,6 +91,7 @@ st.markdown('## Customer Retention')
 with st.container():
     churn_object = churn(data_path = './data/churn.csv')
     churn_object.fetch_data()
+    churn_object.filter_data()
     st.dataframe(churn_object.data)
     st.divider()
 
@@ -68,6 +100,7 @@ st.markdown('## Customer Acquisition')
 with st.container():
     acq_object = acquisition(data_path = './data/acquisitions.csv')
     acq_object.fetch_data()
+    acq_object.filter_data()
     st.dataframe(acq_object.data)
     st.divider()
 
@@ -76,6 +109,7 @@ st.markdown('## Subscription products')
 with st.container():
     products_object = products(data_path_subs='./data/monthly_subs.csv', data_path_updown='./data/upgrades_downgrades.csv')
     products_object.fetch_data()
+    products_object.filter_data()
     st.dataframe(products_object.data_subs)
     st.dataframe(products_object.data_updown)
     st.divider()
