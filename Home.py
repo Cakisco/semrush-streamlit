@@ -99,6 +99,25 @@ class acquisition:
         with st.container(border=True):
             self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='acq_country')
             self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='acq_product')
+    def transform_data(self):
+        data_chart = self.data
+        data_chart.drop('customer_base', axis=1, inplace=True)
+        data_chart.rename(mapper={'customers_acquired':'Acquisitions','cancelled_customers':'Cancellations'}, axis=1, inplace=True)
+        data_chart_melted = pd.melt(data_chart, id_vars=['metric_month','product','billingCountry'], value_vars=['Acquisitions','Cancellations'], var_name='metric', value_name='count')
+        self.data_chart = data_chart_melted
+    def plot_acquisition(self):
+        colourscale=alt.Scale(domain=['Acquisitions','Cancellations'],range=['green','red'])
+        chart = alt.Chart(self.data_chart).mark_line(point=True).encode(
+            x=alt.X('yearmonth(metric_month):T', title=''),
+            y=alt.Y('sum(count):Q', title='No. of users'),
+            color=alt.Color('metric:N',title='Metric',scale=colourscale),
+            tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('sum(count):Q',title='No. of customers',format='.0f'),alt.Tooltip('metric:N',title='Metric')]
+        )
+        with st.container():
+            st.markdown('### Monthly acquisitions and cancellations')
+            st.markdown('') #Spacer
+            st.altair_chart(chart, use_container_width=True)
+
 
 
 class products:
@@ -152,7 +171,8 @@ with st.container():
     acq_object = acquisition(data_path = './data/acquisitions.csv')
     acq_object.fetch_data()
     acq_object.filter_data()
-    st.dataframe(acq_object.data)
+    acq_object.transform_data()
+    acq_object.plot_acquisition()
     st.divider()
 
 #Part 5: Subscription products
