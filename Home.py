@@ -22,6 +22,10 @@ def filter_data_categories(dataset, description, column, key):
         dataset = dataset[dataset[column].isin(choices)]
     return dataset
 
+def metric_info(expander_label, text):
+    with st.expander(expander_label):
+        st.info(text)
+
 
 class mrr:
     def __init__(self, data_path):
@@ -106,6 +110,7 @@ with st.container():
     mrr_object.filter_data()
     mrr_object.plot_mrr()
     mrr_object.plot_customers()
+    metric_info(expander_label='**Learn more about MRR**', text="MRR is an indicator that measures the predictable revenue that the subscription service generates, periodised on a monthly basis. It is calculated by adding the monthly-equivalent revenue for all subscriptions active each month. Monthly subscriptions contribute their entire amount to the month they are paid, while yearly subscriptions have their amount split evenly across 12 months. The monthly subscriber metric represents the number of customers with an active subscription on a given month, who contribute to this revenue.")
     st.divider()
 
 #Part 3: Customer Retention
