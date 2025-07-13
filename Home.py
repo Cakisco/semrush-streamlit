@@ -154,6 +154,19 @@ class products:
             st.markdown('') #Spacer
             chart = alt.layer(product_chart, arppu_chart).resolve_scale(y='independent')
             st.altair_chart(chart, use_container_width=True)
+    def plot_updown(self):
+        colourscale=alt.Scale(domain=['Upgrade','Downgrade'],range=['green','red'])
+        chart = alt.Chart(self.data_updown).mark_bar(cornerRadius=5).encode(
+            x=alt.X('yearmonth(metric_month):T', title=''),
+            y=alt.Y('sum(no_customers):Q', title='No. of customers', stack=False),
+            color=alt.Color('product_outcome:N',title='Change type',scale=colourscale),
+            xOffset='product_outcome:N',
+            tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('sum(no_customers):Q', title='No. of customers'),alt.Tooltip('product_outcome:N',title='Change type')]
+        )
+        with st.container():
+            st.markdown('### Monthly product upgrades and downgrades')
+            st.markdown('') #Spacer
+            st.altair_chart(chart, use_container_width=True)
 
 
 st.title("Analytics Engineer Test Task")
@@ -205,5 +218,6 @@ with st.container():
     products_object.filter_data()
     products_object.plot_subscribers()
     metric_info(expander_label='**Learn more about this chart**', text="The chart above tracks the monthly distribution of products across subscribers. It measures, across all subscriptions active on a given month, the relative proportion of subscribers on each of the three product tiers. Since these products incur different prices, the chart also includes a red line indicating the average revenue per paying user (ARPPU). ARPPU is calculated as a ratio between monthly recurring revenue (MRR) and monthly subscribers, and indicates how much revenue each subscription generates.")
-    st.dataframe(products_object.data_updown)
+    products_object.plot_updown()
+    metric_info(expander_label='**Learn more about this chart**', text="The chart above specifically monitors how many customers are upgrading and downgrading their subscriptions per month. The green bars represent how many customers moved to a higher subscription tier, whereas the red bars indicate customers downgrading to a lower subscription tier. Upgrades and downgrades are considered equally even if the customer moves two subscription tiers (e.g. from Pro to Business)")
     st.divider()
