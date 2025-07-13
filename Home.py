@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 
 st.set_page_config(page_title='Analytics Engineer test task', page_icon = './assets/logo.png', layout='centered')
 
@@ -31,6 +32,26 @@ class mrr:
         with st.container(border=True):
             self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='mrr_country')
             self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='mrr_product')
+    def plot_mrr(self):
+        chart = alt.Chart(self.data).mark_area(point=True).encode(
+            x=alt.X('yearmonth(metric_month):T', title=''),
+            y=alt.Y('sum(mrr):Q', title='Monthly recurring revenue'),
+            tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('sum(mrr):Q',title='MRR',format='.1f')]
+        )
+        with st.container():
+            st.markdown('### Monthly recurring revenue')
+            st.markdown('') #Spacer
+            st.altair_chart(chart, use_container_width=True)
+    def plot_customers(self):
+        chart = alt.Chart(self.data).mark_area(point=True).encode(
+            x=alt.X('yearmonth(metric_month):T', title=''),
+            y=alt.Y('sum(active_subscribers):Q', title='Monthly subscribers'),
+            tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('sum(active_subscribers):Q',title='MRR',format='.0f')]
+        )
+        with st.container():
+            st.markdown('### Monthly subscribers')
+            st.markdown('') #Spacer
+            st.altair_chart(chart, use_container_width=True)
 
 class churn:
     def __init__(self, data_path):
@@ -83,7 +104,8 @@ with st.container():
     mrr_object = mrr(data_path = './data/mrr.csv')
     mrr_object.fetch_data()
     mrr_object.filter_data()
-    st.dataframe(mrr_object.data)
+    mrr_object.plot_mrr()
+    mrr_object.plot_customers()
     st.divider()
 
 #Part 3: Customer Retention
