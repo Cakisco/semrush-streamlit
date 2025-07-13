@@ -150,7 +150,7 @@ class products:
             tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('arppu:Q',title='ARPPU',format='.1f')]
         )
         with st.container():
-            st.markdown('### Disribution in subscription products')
+            st.markdown('### Distribution in subscription products')
             st.markdown('') #Spacer
             chart = alt.layer(product_chart, arppu_chart).resolve_scale(y='independent')
             st.altair_chart(chart, use_container_width=True)
@@ -204,5 +204,6 @@ with st.container():
     products_object.fetch_data()
     products_object.filter_data()
     products_object.plot_subscribers()
+    metric_info(expander_label='**Learn more about this chart**', text="The chart above tracks the monthly distribution of products across subscribers. It measures, across all subscriptions active on a given month, the relative proportion of subscribers on each of the three product tiers. Since these products incur different prices, the chart also includes a red line indicating the average revenue per paying user (ARPPU). ARPPU is calculated as a ratio between monthly recurring revenue (MRR) and monthly subscribers, and indicates how much revenue each subscription generates.")
     st.dataframe(products_object.data_updown)
     st.divider()
