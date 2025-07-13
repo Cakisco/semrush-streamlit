@@ -134,6 +134,29 @@ class products:
             if len(choices)>0:
                 self.data_subs = self.data_subs[self.data_subs['billingCountry'].isin(choices)]
                 self.data_updown = self.data_updown[self.data_updown['billingCountry'].isin(choices)]
+    def plot_subscribers(self):
+        data_chart = self.data_subs.groupby(['metric_month','product'])[['no_customers','mrr']].sum().reset_index()
+        data_chart['total_customers'] = data_chart.groupby('metric_month')['no_customers'].transform('sum')
+        data_chart['proportion'] = data_chart['no_customers'] / data_chart['total_customers']
+        chart = alt.Chart(data_chart).mark_area().encode(
+            x=alt.X('yearmonth(metric_month):T', title=''),
+            y=alt.Y('sum(proportion):Q', title='% of customers', axis=alt.Axis(format='.0%'), scale=alt.Scale(domain=[0, 1])),
+            color=alt.Color('product:N',title='Product',scale=alt.Scale(scheme='category10')),
+            tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('sum(proportion):Q',title='% of customers',format='.1%'),alt.Tooltip('product:N',title='Product')]
+        )
+        data_arppu=self.data_subs.groupby(['metric_month'])[['no_customers','mrr']].sum().reset_index()
+        data_arppu['arppu']=data_arppu['mrr']/data_arppu['no_customers']
+        arppu_chart = alt.Chart(data_arppu).mark_line(color='red').encode(
+            x=alt.X('yearmonth(metric_month):T', title=''),
+            y=alt.Y('arppu:Q', title='ARPPU', scale=alt.Scale(domain=[100, 200])),
+            tooltip = [alt.Tooltip('yearmonth(metric_month):T',title='Month',timeUnit='yearmonth'),alt.Tooltip('arppu:Q',title='ARPPU',format='.1%')]
+        )
+        with st.container():
+            st.markdown('### Monthly recurring revenue')
+            st.markdown('') #Spacer
+            st.altair_chart(chart, use_container_width=True)
+            st.altair_chart(arppu_chart, use_container_width=True)
+
 
 st.title("Analytics Engineer Test Task")
 #Part 1: Project overview
@@ -181,6 +204,7 @@ with st.container():
     products_object = products(data_path_subs='./data/monthly_subs.csv', data_path_updown='./data/upgrades_downgrades.csv')
     products_object.fetch_data()
     products_object.filter_data()
+    products_object.plot_subscribers()
     st.dataframe(products_object.data_subs)
     st.dataframe(products_object.data_updown)
     st.divider()
