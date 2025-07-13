@@ -196,6 +196,7 @@ with st.container():
     acq_object.filter_data()
     acq_object.transform_data()
     acq_object.plot_acquisition()
+    metric_info(expander_label='**Learn more about customer acquisition**', text="Customer acquisition is evaluated by measuring the number of newly subscribed customers each month. A customer is considered to be newly subscribed if they have an active subscription in a given month, but they did not in the previous months. This includes customers that were subscribed, cancelled their subscription and later re-subscribed. The number of acquired customers is compared with the number of customer cancellations to better evaluate growth.")
     st.divider()
 
 #Part 5: Subscription products
