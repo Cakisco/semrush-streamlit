@@ -1,6 +1,6 @@
 import streamlit as st
 
-
+st.set_page_config(page_title='Analytics Engineer test task', page_icon = './assets/logo.png', layout='centered')
 
 def project_overview():
     st.markdown("This project is part of a mock analysis for an analytics engineer opportunity. Based on an initial dataset provided, the aim of the project is to propose a set of key metrics to drive business impact, design a data model to support these metrics, and compile a summary of findings with key insights uncovered by these metrics.")
