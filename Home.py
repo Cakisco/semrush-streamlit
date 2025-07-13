@@ -66,7 +66,7 @@ class churn:
         with st.container(border=True):
             self.data = filter_data_categories(self.data, description='Filter data by market', column='billingCountry', key='churn_country')
             self.data = filter_data_categories(self.data, description='Filter data by subscription product', column='product', key='churn_product')
-            self.churn_volume = st.toggle(label='See volume churn rate', help='Toggle this option to visualise volume churn rate instead of value churn rate')
+            self.churn_volume = st.toggle(label='See volume churn rate', help='Toggle this option to visualise volume (customer) churn rate instead of value (revenue) churn rate')
     def transform_data(self):
         data_churn = self.data.groupby(['churn_month'])[['starting_revenue','starting_customers','retained_revenue','retained_customers']].sum().reset_index()
         data_churn['value_retention']=data_churn['retained_revenue']/data_churn['starting_revenue']
@@ -143,6 +143,7 @@ with st.container():
     churn_object.filter_data()
     churn_object.transform_data()
     churn_object.plot_churn()
+    metric_info(expander_label='**Learn more about Churn rate**', text="Customer retention is evaluated by measuring churn rate, both in terms of revenue (value) and number of customers (volume). Churn rates are an indication of how much the existing subscriber base shrinks every month, primarily due to cancellations. It is calculated as a ratio between the customer base (revenue/subscribers) that is lost on a given month and the size of the customer base at the beginning of the month. Value churn also considers the effect of upselling and downselling to existing subscribers.")
     st.divider()
 
 #Part 4: Customer Acquisition
